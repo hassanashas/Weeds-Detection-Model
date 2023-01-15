@@ -1,0 +1,256 @@
+{% extends 'headerPage.html' %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+<body id="page-top">
+
+  {% block content%}
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <div id="content">
+
+        <form method="POST" enctype="multipart/form-data" action="predictImage">
+          {% csrf_token %}
+          <!-- Topbar -->
+          <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+            <!-- <select class="form-select-sm" name="image_type" id = "image_type" aria-label="Default select example">
+              <option selected value="new_photo">New Photo</option>
+              <option value="existing_photo">Existing Photo</option>
+            </select> -->
+            <img class="" src="C:\Hassan\Project\Example2\imageNetProject\template\leaf_logo.jpg" alt="">
+            <div class="h4 mr-5 font-weight-bold">Weed Detection Model</div>
+
+            <select hidden class="form-select-sm ml-5" id = "image_names" aria-label="Default select example">
+              <option selected hidden value = "select_photo">Select Photo</option>
+              {% for photo in photos %}
+              <option value = {{photo}}>{{photo}}</option>
+              {% endfor %}
+            </select>
+
+            <!-- Topbar Search -->
+            <div class=" mx-5 font-weight-bold">
+              Uplaod Image
+            </div>
+            <input class=" " type="file" name="filePath">
+            <input hidden class="" name="username" value="{{ ID }}">
+            <input type="submit" class=" ml-5 btn btn-success" id = "submit_button" value="Detect">
+            <!-- Topbar Navbar -->
+
+
+
+
+
+            <!-- <a class="btn-sm btn-danger" href={% url 'logout' %}> Logout</a> -->
+
+
+
+          </nav>
+        </form>
+        <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/2.2.3/jquery.elevatezoom.min.js"></script>
+        <script>
+          $(document).ready(function() {  
+            $("#image_type").on('change', function(){
+              if (this.value == "existing_photo")
+              {
+                $("#image_names").attr("hidden", false);
+                if ($("#image_names").val() == "select_photo")
+                {
+                  $("#submit_button").attr("disabled", true);
+                }
+              }
+              else
+              {
+                $("#image_names").attr("hidden", true);
+                $("#submit_button").attr("disabled", false);
+              }
+            })
+
+            $("#image_names").on('change', function(){
+              if (this.value == "select_photo")
+              {
+                $("#submit_button").attr("disabled", true);
+              }
+              else
+              {
+                $("#submit_button").attr("disabled", false);
+              }
+            })
+          });
+        </script>
+          <div class="container-fluid">
+
+
+            <!-- Content Row -->
+            <div class="row">
+
+
+              <!-- Yield -->
+              <div class="col-lg-4">
+
+                <!-- Project Card Example -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h5 class="mx-2 font-weight-bold text-primary d-inline ">Resultant Image</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+
+                      <div class="col-lg-12 mb-4">
+                        {%if predictedLabel%}
+                        <div class="exzoom" id="exzoom">
+                          <!-- Images -->
+                          <img id="zoom" class="img-fluid" src={{filePathName}} data-zoom-image={{filePathName}}
+                            alt='imagename'>
+                        </div>
+                  
+                        {% endif %}
+                      </div>
+                      <script
+                        src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/2.2.3/jquery.elevatezoom.min.js"></script>
+                      <script>
+                        $("#zoom").elevateZoom({
+                          zoomWindowPosition: 1, easing: true, tint: true, tintColor: '#999',
+                          tintOpacity: 0.5, scrollZoom: true
+                        }); 
+                      </script>
+                    </div>
+                  </div>
+                  
+                </div>
+
+
+              </div>
+
+              <!-- Wheat -->
+              <div class="col-lg-4">
+
+                <!-- Project Card Example -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <!-- <img class="h-25 w-20 " src="Wheat_img.jpg" alt=""> -->
+                    <h5 class="mx-2 font-weight-bold text-primary d-inline ">Land under Consideration</h5>
+
+                  </div>
+                  <div class="card-body">
+                    <div class="col-lg-12 mb-4">
+                        
+                      {%if predictedLabel%}
+                      {{ predictedLabel|json_script:"object_keys" }}
+                      {{ values|json_script:"object_values" }}
+                     
+                        
+                        <div class="progress">
+                            <div class="progress-bar bg-success" 
+                              role="progressbar" style="width: {{clean}}%" 
+                              aria-valuenow="{{clean}}" aria-valuemin="0" aria-valuemax="100">
+                              {{clean}}% OK
+                          </div>
+                            <div class="progress-bar bg-danger" 
+                                role="progressbar" style="width: {{values}}%" 
+                                aria-valuenow="{{values}}" aria-valuemin="0" aria-valuemax="100">
+                                
+                          </div>
+                      </div>
+         
+                      {% endif %}
+                    </div>
+
+
+                  </div>
+                </div>
+
+
+
+              </div>
+
+              <!-- Corn -->
+
+              <div class="col-lg-4 ">
+
+                <!-- Project Card Example -->
+                <div class="card shadow mb-4">
+                  <div class="card-header navbar float-left">
+
+                    <!-- <img class="h-25 w-15 " src="corn_img.jpg" alt=""> -->
+                    <h5 class="font-weight-bold text-primary ">Distribution of Labels</h5>
+
+
+                  </div>
+                  <div class="card-body">
+
+
+                    <div class="row">
+
+
+                      <div class="col-lg-12 mb-4">
+                       
+                      </div>
+                      <script
+                        src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/2.2.3/jquery.elevatezoom.min.js"></script>
+                      <script>
+                        $("#zoom").elevateZoom({
+                          zoomWindowPosition: 1, easing: true, tint: true, tintColor: '#999',
+                          tintOpacity: 0.5, scrollZoom: true
+                        }); 
+                      </script>
+                    </div>
+                    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+                    <div class="row">
+
+
+                      <div class="col-lg-12 mb-4">
+                        
+                        {%if predictedLabel%}
+                        
+                        <div id="myPlot">
+                          <script>
+                            var xArray = JSON.parse(document.getElementById('object_keys').textContent);
+                            var yArray = JSON.parse(document.getElementById('object_values').textContent);
+
+
+                            var layout = { title: "Distribution of Labels" };
+
+                            var data = [{ labels: xArray, values: yArray, hole: .5, type: "pie" }];
+
+                            Plotly.newPlot("myPlot", data, layout);
+                          </script>
+                        </div>
+                        {% endif %}
+                      </div>
+
+
+                    </div>
+
+
+
+
+
+
+
+                  </div>
+                </div>
+
+
+              </div>
+
+
+            </div>
+         
+
+          </div> 
+          {% endblock %}
+      </div>
+    </div>
+  </div>
+ 
+
+</body>
+
+</html>

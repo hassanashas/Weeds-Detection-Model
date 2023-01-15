@@ -1,0 +1,84 @@
+{% extends 'headerPage.html' %}
+
+{% block content%}
+
+    <h2>Uplaod Image for Classification</h2>
+
+    
+    <br>
+   
+    <form method="post" enctype="multipart/form-data" action="predictImage">
+  
+ {% csrf_token %}
+ <!-- <div class="col-md-4 col-sm-4"><label for="fname">Upload Image File Here:</label> </div> <input name="filePath" type="file"><br><br>
+ <br> -->
+ <div class="mx-auto drag-area center m-3 ">
+  <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+  <header>Drag & Drop to Upload File</header>
+  <span>OR</span>
+  <input type="file" name="filePath">
+</div>
+<div class="row justify-content-md-center ">
+    
+  <div class="col-md-auto">
+    <button type="button" class="btn btn-success">Submit</button>
+  </div>
+  
+</div>
+ 
+ <input type="submit" value="Submit" >
+<div class="">
+ <h2>Resultant Image</h2>
+ <img src={{filePathName}} alt='imagename'>
+ {{filePathName}}
+</div>
+<div class="container ">
+    <div class="row justify-content-md-center ">
+      
+      <div class="col-md-auto bg-info">
+       Object Detected<span>: 7</span>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row justify-content-md-center">
+      
+      <div class="col-md-auto">
+      1st Object<span>: 3/7</span>
+      </div>
+   
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row justify-content-md-center">
+      
+      <div class="col-md-auto">
+        2nd Object<span>: 2/7</span>
+      </div>
+   
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="row justify-content-md-center">
+      
+      <div class="col-md-auto">
+        3rd Object<span>: 2/7</span>
+      </div>
+   
+    </div>
+  </div>
+<div class = "">
+    {{predictedLabel}}
+    
+</div>
+</div>
+</form>
+<br>
+
+
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends 'headerPage.html' %}
+
+{% block content%}
+<!-- <h2>History</h2>
+{{ photos }}
+{{ ID }} -->
+
+<body id="page-top">
+
+    
+    <div class="container-fluid">
+
+      <div>
+        <div class ="card m-5">
+          <div class = "card-header"><strong>History</strong></div>
+          <div class = "card-body">
+            <table class="table table-hover table-striped table-bordered " id="user_history_table">
+              <thead>
+                <tr>
+
+                  <th scope="col">#</th>
+                  <th scope="col">Upload Time</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for photo in photos %}
+                <tr>
+                  <td>{{forloop.counter}}</td>
+                  <th scope="row">{{photo.upload_time}}</th>
+                  <td>{{photo.name}}</td>
+                  <td>
+                      <button class="btn btn-mini btn-secondary mr-2 ml-2 view_button" data-name={{photo.name}} value={{photo.id}} data-toggle="modal"
+                      data-target="#view_dialog">View</button>
+                      <button class="btn btn-mini btn-info mr-2 ml-2 compare_button" data-name={{photo.name}} value={{photo.id}} data-toggle="modal"
+                      data-target="#compare_dialog">Compare</button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+          
+          // $('#user_history_table').DataTable();
+          $(document).ready(function () {
+            $('.view_button').click(function () {
+              photo_id = $(this).val();
+              photo_name = $(this).data("name")
+              $.ajax({
+                method: "POST",
+                url: "record/",
+                data: { photo_id: photo_id, name: photo_name }
+              })
+                .done(function (response) {
+                  $("#upload_time").text("Upload Time: " + response.message.upload_time);
+                  $("#photo_name").text("Name: " + response.message.photo_name);
+                  $("#photo_src").attr("src", response.message.photo_path);
+                  var xArray = response.message.objects;
+                  var yArray = response.message.values;
+
+
+                  var layout = { title: "Distribution of Labels" };
+
+                  var data = [{ labels: xArray, values: yArray, hole: .5, type: "pie" }];
+
+                  Plotly.newPlot("graph_plot", data, layout);
+                  // alert(response.message.objects[0]);             
+                })
+            });
+
+
+            // Compare Button Click Function 
+            $('.compare_button').click(function () {
+              photo_id = $(this).val();
+              photo_name = $(this).data("name");
+              $("com2_photo_src").html("");
+              $("com2_graph_plot").html("");
+              $.ajax({
+                method: "POST",
+                url: "comparison_page/",
+                data: { photo_id: photo_id, name: photo_name }
+              })
+                .done(function (response) {
+                  $("#com_upload_time").text("Upload Time: " + response.message.upload_time);
+                  $("#com_photo_name").text("Name: " + response.message.photo_name);
+                  $("#com_photo_src").attr("src", response.message.photo_path);
+                  var xArray = response.message.objects;
+                  var yArray = response.message.values;
+                  $('#compare_images').find('option:not(:first)').remove();
+                  $.each(response.message.photos, (index,item) => {
+                    $('#compare_images').append($('<option>', {
+                        value: item[1],
+                        text: item[0]
+                    }));
+                  });
+
+
+                  var layout = { title: "Distribution of Labels" };
+
+                  var data = [{ labels: xArray, values: yArray, hole: .5, type: "pie" }];
+
+                  Plotly.newPlot("com_graph_plot", data, layout);
+                  // alert(response.message.objects[0]);             
+                })
+            });
+
+
+            $(document).on('change', '#compare_images', function() {
+                photo_id = $(this).val();
+                 
+                $.ajax({
+                method: "POST",
+                url: "get_comparison_photo/",
+                data: { photo_id: photo_id}
+              })
+                .done(function (response) {
+                  $("#com2_photo_src").attr("src", response.message.photo_path);
+                  var xArray = response.message.objects;
+                  var yArray = response.message.values;
+
+                  var layout = { title: "Distribution of Labels" };
+
+                  var data = [{ labels: xArray, values: yArray, hole: .5, type: "pie" }];
+
+                  Plotly.newPlot("com2_graph_plot", data, layout);
+                  // alert(response.message.objects[0]);             
+                })
+            });
+
+
+          });
+        </script>
+        <div class="modal" tabindex="-1" role="dialog" id="view_dialog">
+          <div class="modal-dialog modal-dialog-centered modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Photo Details</h5>
+              </div>
+              <div class="modal-body">
+                <div class="card-body">
+
+                  <!--yield card -->
+                  <div class="row my-5">
+
+                    <div class="col-lg-8 ">
+
+                      <div class="">
+                        <div class="text-black-50 font-weight-bold"><span id="photo_name"></span></div>
+                      </div>
+
+                    </div>
+                    <div class="col-lg-4">
+
+                      <div class="">
+                        <div class="text-black-50 font-weight-bold"><span id="upload_time"></span></div>
+                      </div>
+
+                    </div>
+                  </div>
+
+
+
+                  <div class="row">
+
+
+                    <div class="col-lg-6">
+                      <img class="img-fluid" id="photo_src">
+                    </div>
+
+                    <div class="col-lg-6">
+                      <div class="img-fluid" id="graph_plot"></div>
+                    </div>
+
+                  </div>
+                </div>
+
+
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- For the Comparison Modal -->
+
+        <div class="modal" tabindex="-1" role="dialog" id="compare_dialog">
+          <div class="modal-dialog modal-dialog-centered modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Photo Comparison</h5>
+              </div>
+              <div class="modal-body">
+                <div class="card-body">
+
+                  <!--yield card -->
+                  <div class="row my-5">
+
+                    <div class="col-lg-8 ">
+
+                      <div class="">
+                        <div class="text-black-50 font-weight-bold"><span id="com_photo_name"></span></div>
+                        <div class="">
+                          <div class="text-black-50 font-weight-bold"><span id="com_upload_time"></span></div>
+                        </div>
+                      </div>
+
+                    </div>
+                    <div class="col-lg-4">
+
+                      <select class="form-select-sm ml-5" id = "compare_images" aria-label="Default select example">
+                        <option selected hidden value = "select_photo">Compare With</option>
+                        <!-- {% for photo in photos %}
+                        <option value = {{photo}}>{{photo}}</option>
+                        {% endfor %} -->
+                      </select>
+
+                    </div>
+                  </div>
+
+
+
+                  <div class="row">
+
+
+                    <div class="col-lg-6">
+                      <img class="img-fluid" id="com_photo_src">
+                      <div class="img-fluid" id="com_graph_plot"></div>
+                    </div>
+
+                    <div class="col-lg-6">
+                      <img class="img-fluid" id="com2_photo_src">
+                      <div class="img-fluid" id="com2_graph_plot"></div>
+                    </div>
+
+                  </div>
+                </div>
+
+
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% endblock %}
+      </div>
+    </div>
+
+
+
+
+</body>
